@@ -3,17 +3,16 @@ author: Mihai Suteu
 date: 15/05/19
 """
 
-
 import os
-import sys
-import h5py
-import torch
-import shutil
 import random
+import shutil
+import sys
 import tarfile
 import zipfile
-import numpy as np
 
+import h5py
+import numpy as np
+import torch
 from PIL import Image
 from torch.utils.data import Dataset
 from torchvision.datasets.utils import download_url
@@ -23,7 +22,7 @@ class NYUv2(Dataset):
     """
     PyTorch wrapper for the NYUv2 dataset focused on multi-task learning.
     Data sources available: RGB, Semantic Segmentation, Surface Normals, Depth Images.
-    If no transformation is provided, the image type will not be returned.
+    If no transformation is provided, the image type will not be downloaded or returned.
 
     ### Output
     All images are of size: 640 x 480
@@ -167,10 +166,19 @@ class NYUv2(Dataset):
     def download(self):
         if self._check_exists():
             return
-        download_rgb(self.root)
-        download_seg(self.root)
-        download_sn(self.root)
-        download_depth(self.root)
+
+        if self.rgb_transform is not None:
+            download_rgb(self.root)
+
+        if self.seg_transform is not None:
+            download_seg(self.root)
+
+        if self.sn_transform is not None:
+            download_sn(self.root)
+
+        if self.depth_transform is not None:
+            download_depth(self.root)
+
         print("Done!")
 
 
