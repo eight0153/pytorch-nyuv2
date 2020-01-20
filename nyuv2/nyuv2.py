@@ -72,6 +72,13 @@ class NYUv2(Dataset):
         self.sn_transform = sn_transform
         self.depth_transform = depth_transform
 
+        self.transform_index = dict(
+            rgb=self.rgb_transform,
+            seg13=self.seg_transform,
+            sn=self.sn_transform,
+            depth=self.depth_transform
+        )
+
         self.train = train
         self._split = "train" if train else "test"
 
@@ -157,9 +164,10 @@ class NYUv2(Dataset):
             for split in ["train", "test"]:
                 for type_ in ["rgb", "seg13", "sn", "depth"]:
                     path = os.path.join(self.root, f"{split}_{type_}")
-                    if not os.path.exists(path):
+
+                    if self.transform_index[type_] is not None and not os.path.exists(path):
                         raise FileNotFoundError("Missing Folder")
-        except FileNotFoundError as e:
+        except FileNotFoundError:
             return False
         return True
 
